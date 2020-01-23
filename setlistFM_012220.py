@@ -36,6 +36,7 @@ import requests
 
 userArtistIn = input(f"What Artist are you interested in? ")
 userArtist = userArtistIn.replace(' ','%20')
+artistPassVal = userArtistIn
 headers = {
     'Accept': 'application/json',
     'x-api-key': 'hqklOe2QH1XbmtW6Wbgd1dtm9N7MjFxJ1hnq',
@@ -58,10 +59,6 @@ def mbidTableUpdate(mbidOutput):
     with open ('mbidTable.csv','a', newline='') as csvOutputFile:
         filewriter = csv.writer(csvOutputFile)
         filewriter.writerow(mbidOutput)
-
-if len(mbidTableVal)== 0:
-    mbidOutput = [userArtistIn, mbidTableVal]
-    mbidTableUpdate(mbidOutput)
 
 with open (userArtist+'.json','w') as jsonOutputFileScratch:
     filewriter = json.dump(jsonObject,jsonOutputFileScratch)
@@ -90,12 +87,13 @@ if mbidValFinder == False:
     lastFirst = (splitVar[1]+', '+splitVar[0])
     print (f"The value of lastFirst is {lastFirst}")
     mbidValFinder = next((item for item in mbidValSearchableObj if item[ "sortName" ] == lastFirst), False)
+    artistPassVal = lastFirst
 print(f"Confirming the post Generator value of 'mbidValFinder' is {mbidValFinder}")
 mbid = mbidValFinder['mbid']
 print(f"Confirming the value of 'mbid' is: {mbid}")
 
 if len(mbidTableVal)== 0:
-    mbidOutput = [userArtistIn, mbid]
+    mbidOutput = [artistPassVal, mbid]
     mbidTableUpdate(mbidOutput)
 
 

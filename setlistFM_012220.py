@@ -30,8 +30,12 @@ queries (setlists...)
 """
 
 import json
+import csv
 import requests
 
+
+userArtistIn = input(f"What Artist are you interested in? ")
+userArtist = userArtistIn.replace(' ','%20')
 headers = {
     'Accept': 'application/json',
     'x-api-key': 'hqklOe2QH1XbmtW6Wbgd1dtm9N7MjFxJ1hnq',
@@ -39,19 +43,61 @@ headers = {
     'Connection': 'keep-alive',
 }
 
-response = requests.get('https://api.setlist.fm/rest/1.0/search/artists?artistName=Pearl%20Jam&p=1&sort=sortName', headers=headers)
+response = requests.get('https://api.setlist.fm/rest/1.0/search/artists?artistName='+userArtist+'&p=1&sort=sortName', headers=headers)
 jsonObject = response.json()
+mbidTableVal = []
+print(f"AFter declaring the var len(mbidTableVal) = {len(mbidTableVal)}")
+with open ('mbidTable.csv','r') as csvInputFile:
+    filereader = csv.reader(csvInputFile)
+    for line in filereader:
+        for cell in line:
+            if cell == userArtistIn:
+                mbidTableVal.append(line[1])
+print(f"After the midTable open and query the mbidTableVal is {mbidTableVal}")
+def mbidTableUpdate(mbidOutput):
+    with open ('mbidTable.csv','a', newline='') as csvOutputFile:
+        filewriter = csv.writer(csvOutputFile)
+        filewriter.writerow(mbidOutput)
 
+if len(mbidTableVal)== 0:
+    mbidOutput = [userArtistIn, mbidTableVal]
+    mbidTableUpdate(mbidOutput)
+
+with open (userArtist+'.json','w') as jsonOutputFileScratch:
+    filewriter = json.dump(jsonObject,jsonOutputFileScratch)
+
+"""
+Logic Pivot using >>>
+if len(mbidTableVal) ....
+
+"""
+
+#print(f"The value of mbidTableVal is: {mbidTableVal}")
+#print(f"The vale of len(mbidTableVal) is {len(mbidTableVal)}")
 #with open ('PJsetlistQueryOutput1156am.json','r') as jsonInputFile:
-print(f"Confirming the vale of 'jsonObject': {jsonObject}")
+#print(f"Confirming the vale of 'jsonObject': {jsonObject}")
 mbidValSearchableObj = jsonObject['artist']
-print(mbidValSearchableObj)
-mbidValFinder = next((item for item in mbidValSearchableObj if item["sortName"] == "Pearl Jam"),False)
+#print(mbidValSearchableObj)
+mbidValFinder = next((item for item in mbidValSearchableObj if item["sortName"] == userArtistIn),False)
 #mbidValFinder = next((item for item in jsonObject if item["sortName"] == "Pearl Jam"), False)
 #mbidValFinder = next((item for item in jsonObject if item["sortName"] == "Pearl Jam"),False)
-print(f"Confirming the value of 'mbidValFinder' is {mbidValFinder}")
+if mbidValFinder == False:
+    prepLastFirst = userArtistIn.replace(' ',',')
+    splitVar = prepLastFirst.split(",")
+    print(f"The value of splitVar is {splitVar}")
+    print(f"The value of splitVar[0] is {splitVar[0]}")
+    print(f"The value of splitVar[1] is {splitVar[1]}")
+    lastFirst = (splitVar[1]+', '+splitVar[0])
+    print (f"The value of lastFirst is {lastFirst}")
+    mbidValFinder = next((item for item in mbidValSearchableObj if item[ "sortName" ] == lastFirst), False)
+print(f"Confirming the post Generator value of 'mbidValFinder' is {mbidValFinder}")
 mbid = mbidValFinder['mbid']
 print(f"Confirming the value of 'mbid' is: {mbid}")
+
+if len(mbidTableVal)== 0:
+    mbidOutput = [userArtistIn, mbid]
+    mbidTableUpdate(mbidOutput)
+
 
 """
 Section for extracting Mbid ... Music Brainz ID.

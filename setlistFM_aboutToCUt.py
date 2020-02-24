@@ -21,6 +21,7 @@ GOAL:
 	Pass values to the table if they are not.
 -The Table should accrue values for every query made.
 
+FURTHER GOALS
 
 """
 import json
